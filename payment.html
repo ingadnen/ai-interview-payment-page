@@ -17,6 +17,8 @@
     <div class="container">
         <h1>Choose Your Plan</h1>
         <p id="message"></p>
+        <div class="payment-option"><b>5 Minutes - $0.01 CAD</b><div id="paypal-button-container-01"></div></div>
+        <hr/>
         <div class="payment-option"><b>60 Minutes - $20 CAD</b><div id="paypal-button-container-20"></div></div>
         <hr/>
         <div class="payment-option"><b>90 Minutes - $27 CAD</b><div id="paypal-button-container-27"></div></div>
@@ -59,6 +61,7 @@
                 }).render(`#${containerId}`);
             }
 
+            renderPayPalButton('paypal-button-container-01', '5 Minute Session', '0.01');
             renderPayPalButton('paypal-button-container-20', '60 Minute Session', '20.00');
             renderPayPalButton('paypal-button-container-27', '90 Minute Session', '27.00');
             renderPayPalButton('paypal-button-container-36', '120 Minute Session', '36.00');
