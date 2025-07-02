@@ -46,20 +46,30 @@
                 createOrder: (data, actions) => actions.order.create({
                     purchase_units: [{
                         description: description,
-                        amount: { value: value },
+                        // Le custom_id et le amount global sont toujours là
                         custom_id: userId,
-                        // ▼▼▼ LA LIGNE LA PLUS IMPORTANTE À AJOUTER ▼▼▼
-                        items: [
-                            {
-                                name: description, // Le nom du produit
-                                sku: sku,          // L'identifiant unique
-                                quantity: '1',
-                                unit_amount: {
+                        amount: {
+                            currency_code: 'CAD',
+                            value: value,
+                            // ▼▼▼ LA CORRECTION EST ICI ▼▼▼
+                            // On doit spécifier la répartition du montant total.
+                            breakdown: {
+                                item_total: { // Ce champ était manquant
                                     currency_code: 'CAD',
                                     value: value
                                 }
                             }
-                        ]
+                        },
+                        // On continue de détailler les articles pour le worker
+                        items: [{
+                            name: description,
+                            sku: sku,
+                            quantity: '1',
+                            unit_amount: {
+                                currency_code: 'CAD',
+                                value: value
+                            }
+                        }]
                     }]
                 }),
                 onApprove: (data, actions) => actions.order.capture().then(details => {
