@@ -46,10 +46,9 @@
                 createOrder: (data, actions) => {
                     return actions.order.create({
                         purchase_units: [{
-                            // Custom ID for your reference (UID)
+                            // On ne met PAS de description ici
                             custom_id: userId,
                             
-                            // The `amount` object with its required breakdown
                             amount: {
                                 currency_code: 'CAD',
                                 value: value,
@@ -60,8 +59,6 @@
                                     }
                                 }
                             },
-                
-                            // The `items` array, at the same level as `amount`
                             items: [{
                                 name: description,
                                 sku: sku,
