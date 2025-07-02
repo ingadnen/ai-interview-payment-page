@@ -43,35 +43,37 @@
 
             function renderPayPalButton(containerId, description, value, sku) { // On ajoute 'sku' comme argument
             paypal.Buttons({
-                createOrder: (data, actions) => actions.order.create({
-                    purchase_units: [{
-                        description: description,
-                        // Le custom_id et le amount global sont toujours là
-                        custom_id: userId,
-                        amount: {
-                            currency_code: 'CAD',
-                            value: value,
-                            // ▼▼▼ LA CORRECTION EST ICI ▼▼▼
-                            // On doit spécifier la répartition du montant total.
-                            breakdown: {
-                                item_total: { // Ce champ était manquant
+                createOrder: (data, actions) => {
+                    return actions.order.create({
+                        purchase_units: [{
+                            // Custom ID for your reference (UID)
+                            custom_id: userId,
+                            
+                            // The `amount` object with its required breakdown
+                            amount: {
+                                currency_code: 'CAD',
+                                value: value,
+                                breakdown: {
+                                    item_total: {
+                                        currency_code: 'CAD',
+                                        value: value
+                                    }
+                                }
+                            },
+                
+                            // The `items` array, at the same level as `amount`
+                            items: [{
+                                name: description,
+                                sku: sku,
+                                quantity: '1',
+                                unit_amount: {
                                     currency_code: 'CAD',
                                     value: value
                                 }
-                            }
-                        },
-                        // On continue de détailler les articles pour le worker
-                        items: [{
-                            name: description,
-                            sku: sku,
-                            quantity: '1',
-                            unit_amount: {
-                                currency_code: 'CAD',
-                                value: value
-                            }
+                            }]
                         }]
-                    }]
-                }),
+                    });
+                },
                 onApprove: (data, actions) => actions.order.capture().then(details => {
                     document.body.innerHTML = '<h1>Payment Successful!</h1><p style="text-align:center;">You can now close this tab and return to the extension.</p>';
                 }),
