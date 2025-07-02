@@ -41,18 +41,30 @@
                 return;
             }
 
-            function renderPayPalButton(containerId, description, value) {
-                paypal.Buttons({
-                    createOrder: (data, actions) => actions.order.create({
-                        purchase_units: [{
-                            description: description,
-                            amount: { value: value },
-                            custom_id: userId
-                        }]
-                    }),
-                    onApprove: (data, actions) => actions.order.capture().then(details => {
-                        document.body.innerHTML = '<h1>Payment Successful!</h1><p style="text-align:center;">You can now close this tab and return to the extension.</p>';
-                    }),
+            function renderPayPalButton(containerId, description, value, sku) { // On ajoute 'sku' comme argument
+            paypal.Buttons({
+                createOrder: (data, actions) => actions.order.create({
+                    purchase_units: [{
+                        description: description,
+                        amount: { value: value },
+                        custom_id: userId,
+                        // ▼▼▼ LA LIGNE LA PLUS IMPORTANTE À AJOUTER ▼▼▼
+                        items: [
+                            {
+                                name: description, // Le nom du produit
+                                sku: sku,          // L'identifiant unique
+                                quantity: '1',
+                                unit_amount: {
+                                    currency_code: 'CAD',
+                                    value: value
+                                }
+                            }
+                        ]
+                    }]
+                }),
+                onApprove: (data, actions) => actions.order.capture().then(details => {
+                    document.body.innerHTML = '<h1>Payment Successful!</h1><p style="text-align:center;">You can now close this tab and return to the extension.</p>';
+                }),
                     onError: err => {
                         messageEl.textContent = "An error occurred with your payment. Please try again.";
                         messageEl.style.color = "red";
@@ -61,11 +73,12 @@
                 }).render(`#${containerId}`);
             }
 
-            renderPayPalButton('paypal-button-container-01', '5 Minute Session', '0.01');
-            renderPayPalButton('paypal-button-container-20', '60 Minute Session', '20.00');
-            renderPayPalButton('paypal-button-container-27', '90 Minute Session', '27.00');
-            renderPayPalButton('paypal-button-container-36', '120 Minute Session', '36.00');
-            renderPayPalButton('paypal-button-container-43', '150 Minute Session', '43.00');
+            // On appelle maintenant la fonction avec les SKUs
+            renderPayPalButton('paypal-button-container-01', '5 Minute Session', '0.01', 'SESSION_5_MIN');
+            renderPayPalButton('paypal-button-container-20', '60 Minute Session', '20.00', 'SESSION_60_MIN');
+            renderPayPalButton('paypal-button-container-27', '90 Minute Session', '27.00', 'SESSION_90_MIN');
+            renderPayPalButton('paypal-button-container-36', '120 Minute Session', '36.00', 'SESSION_120_MIN');
+            renderPayPalButton('paypal-button-container-43', '150 Minute Session', '43.00', 'SESSION_150_MIN');
         });
     </script>
 </body>
