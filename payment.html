@@ -19,7 +19,7 @@
         <p id="message"></p>
         <div class="payment-option" id="free-trial-option" style="display:none;">
             <b>Free Trial - 5 Minutes - $0.00 CAD</b>
-            <button id="free-trial-btn" style="padding: 0.5rem 1.5rem; border-radius: 5px; background: #28a745; color: white; border: none; font-size: 1rem; cursor: pointer;">Activer mon essai gratuit</button>
+            <button id="free-trial-btn" style="padding: 0.5rem 1.5rem; border-radius: 5px; background: #28a745; color: white; border: none; font-size: 1rem; cursor: pointer;">Activate my free trial</button>
         </div>
         <hr id="free-trial-hr" style="display:none;"/>
         <div class="payment-option"><b>60 Minutes - $20 CAD</b><div id="paypal-button-container-20"></div></div>
@@ -63,7 +63,7 @@
             if (freeTrialBtn) {
                 freeTrialBtn.addEventListener('click', () => {
                     freeTrialBtn.disabled = true;
-                    freeTrialBtn.textContent = 'Activation...';
+                    freeTrialBtn.textContent = 'Activating...';
                     fetch('https://my-worker.ai-interview-reply.workers.dev/paypal-webhook', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -81,19 +81,24 @@
                         if (r.ok) {
                             document.getElementById('free-trial-option').style.display = 'none';
                             document.getElementById('free-trial-hr').style.display = 'none';
-                            messageEl.textContent = 'Essai gratuit activé ! Vous pouvez maintenant fermer cet onglet et retourner à l’extension.';
+                            messageEl.textContent = 'Free trial activated! You can now close this tab and return to the extension.';
                             messageEl.style.color = '#28a745';
+                        } else if (r.status === 409) {
+                            freeTrialBtn.disabled = true;
+                            freeTrialBtn.textContent = 'Already used';
+                            messageEl.textContent = "You have already used your free trial. It is only available once per user.";
+                            messageEl.style.color = 'red';
                         } else {
                             freeTrialBtn.disabled = false;
-                            freeTrialBtn.textContent = 'Activer mon essai gratuit';
-                            messageEl.textContent = "Erreur lors de l'activation de l'essai gratuit. Veuillez réessayer.";
+                            freeTrialBtn.textContent = 'Activate my free trial';
+                            messageEl.textContent = "An error occurred while activating the free trial. Please try again.";
                             messageEl.style.color = 'red';
                         }
                     })
                     .catch(() => {
                         freeTrialBtn.disabled = false;
-                        freeTrialBtn.textContent = 'Activer mon essai gratuit';
-                        messageEl.textContent = "Erreur réseau. Veuillez réessayer.";
+                        freeTrialBtn.textContent = 'Activate my free trial';
+                        messageEl.textContent = "Network error. Please try again.";
                         messageEl.style.color = 'red';
                     });
                 });
