@@ -45,7 +45,7 @@
             }
 
             // Vérifier l'éligibilité au Free Trial
-            fetch('https://ai-interview-reply-backend.pages.dev/can-use-free-trial', {
+            fetch('https://my-worker.ai-interview-reply.workers.dev/can-use-free-trial', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ userId })
@@ -64,7 +64,7 @@
                 freeTrialBtn.addEventListener('click', () => {
                     freeTrialBtn.disabled = true;
                     freeTrialBtn.textContent = 'Activation...';
-                    fetch('https://ai-interview-reply-backend.pages.dev/paypal-webhook', {
+                    fetch('https://my-worker.ai-interview-reply.workers.dev/paypal-webhook', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
