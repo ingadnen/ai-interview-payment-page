@@ -17,8 +17,11 @@
     <div class="container">
         <h1>Choose Your Plan</h1>
         <p id="message"></p>
-        <div class="payment-option"><b>5 Minutes - $0.01 CAD</b><div id="paypal-button-container-01"></div></div>
-        <hr/>
+        <div class="payment-option" id="free-trial-option" style="display:none;">
+            <b>Free Trial - 5 Minutes - $0.00 CAD</b>
+            <button id="free-trial-btn" style="padding: 0.5rem 1.5rem; border-radius: 5px; background: #28a745; color: white; border: none; font-size: 1rem; cursor: pointer;">Activer mon essai gratuit</button>
+        </div>
+        <hr id="free-trial-hr" style="display:none;"/>
         <div class="payment-option"><b>60 Minutes - $20 CAD</b><div id="paypal-button-container-20"></div></div>
         <hr/>
         <div class="payment-option"><b>90 Minutes - $27 CAD</b><div id="paypal-button-container-27"></div></div>
@@ -41,39 +44,92 @@
                 return;
             }
 
-            function renderPayPalButton(containerId, description, value, sku) { // On ajoute 'sku' comme argument
-            paypal.Buttons({
-                createOrder: (data, actions) => {
-                    return actions.order.create({
-                        purchase_units: [{
-                            // On ne met PAS de description ici
-                            custom_id: userId,
-                            
-                            amount: {
-                                currency_code: 'CAD',
-                                value: value,
-                                breakdown: {
-                                    item_total: {
+            // Vérifier l'éligibilité au Free Trial
+            fetch('https://ai-interview-reply-backend.pages.dev/can-use-free-trial', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.canUseFreeTrial) {
+                    document.getElementById('free-trial-option').style.display = 'block';
+                    document.getElementById('free-trial-hr').style.display = 'block';
+                }
+            });
+
+            // Gestion du bouton Free Trial
+            const freeTrialBtn = document.getElementById('free-trial-btn');
+            if (freeTrialBtn) {
+                freeTrialBtn.addEventListener('click', () => {
+                    freeTrialBtn.disabled = true;
+                    freeTrialBtn.textContent = 'Activation...';
+                    fetch('https://ai-interview-reply-backend.pages.dev/paypal-webhook', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            event_type: 'CHECKOUT.ORDER.APPROVED',
+                            resource: {
+                                purchase_units: [{
+                                    custom_id: userId,
+                                    items: [{ sku: 'SESSION_5_MIN' }]
+                                }]
+                            }
+                        })
+                    })
+                    .then(r => {
+                        if (r.ok) {
+                            document.getElementById('free-trial-option').style.display = 'none';
+                            document.getElementById('free-trial-hr').style.display = 'none';
+                            messageEl.textContent = 'Essai gratuit activé ! Vous pouvez maintenant fermer cet onglet et retourner à l’extension.';
+                            messageEl.style.color = '#28a745';
+                        } else {
+                            freeTrialBtn.disabled = false;
+                            freeTrialBtn.textContent = 'Activer mon essai gratuit';
+                            messageEl.textContent = "Erreur lors de l'activation de l'essai gratuit. Veuillez réessayer.";
+                            messageEl.style.color = 'red';
+                        }
+                    })
+                    .catch(() => {
+                        freeTrialBtn.disabled = false;
+                        freeTrialBtn.textContent = 'Activer mon essai gratuit';
+                        messageEl.textContent = "Erreur réseau. Veuillez réessayer.";
+                        messageEl.style.color = 'red';
+                    });
+                });
+            }
+
+            function renderPayPalButton(containerId, description, value, sku) {
+                paypal.Buttons({
+                    createOrder: (data, actions) => {
+                        return actions.order.create({
+                            purchase_units: [{
+                                custom_id: userId,
+                                amount: {
+                                    currency_code: 'CAD',
+                                    value: value,
+                                    breakdown: {
+                                        item_total: {
+                                            currency_code: 'CAD',
+                                            value: value
+                                        }
+                                    }
+                                },
+                                items: [{
+                                    name: description,
+                                    sku: sku,
+                                    quantity: '1',
+                                    unit_amount: {
                                         currency_code: 'CAD',
                                         value: value
                                     }
-                                }
-                            },
-                            items: [{
-                                name: description,
-                                sku: sku,
-                                quantity: '1',
-                                unit_amount: {
-                                    currency_code: 'CAD',
-                                    value: value
-                                }
+                                }]
                             }]
-                        }]
-                    });
-                },
-                onApprove: (data, actions) => actions.order.capture().then(details => {
-                    document.body.innerHTML = '<h1>Payment Successful!</h1><p style="text-align:center;">You can now close this tab and return to the extension.</p>';
-                }),
+                        });
+                    },
+                    onApprove: (data, actions) => actions.order.capture().then(details => {
+                        document.body.innerHTML = '<h1>Payment Successful!</h1><br /><p style="text-align:center;">You can now close this tab and return to the extension.</p>';
+                    }),
                     onError: err => {
                         messageEl.textContent = "An error occurred with your payment. Please try again.";
                         messageEl.style.color = "red";
@@ -82,8 +138,7 @@
                 }).render(`#${containerId}`);
             }
 
-            // On appelle maintenant la fonction avec les SKUs
-            renderPayPalButton('paypal-button-container-01', '5 Minute Session', '0.01', 'SESSION_5_MIN');
+            // On appelle maintenant la fonction avec les SKUs (hors Free Trial)
             renderPayPalButton('paypal-button-container-20', '60 Minute Session', '20.00', 'SESSION_60_MIN');
             renderPayPalButton('paypal-button-container-27', '90 Minute Session', '27.00', 'SESSION_90_MIN');
             renderPayPalButton('paypal-button-container-36', '120 Minute Session', '36.00', 'SESSION_120_MIN');
