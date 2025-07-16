@@ -46,6 +46,40 @@
     .logo img {
       width: 48px; height: 48px; border-radius: 12px; box-shadow: 0 2px 12px #0004;
     }
+    .menu {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+    }
+    .menu-btn {
+      background: none;
+      border: none;
+      color: #fff;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+      font-size: 1.1rem;
+      padding: 0.5rem 1.3rem;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      margin-left: 0.2rem;
+    }
+    .menu-btn.signin {
+      background: var(--glass);
+      color: #fff;
+      border: 1.5px solid #fff2;
+    }
+    .menu-btn.signup {
+      background: linear-gradient(90deg, var(--accent), var(--secondary));
+      color: #181818;
+      font-weight: 700;
+      border: none;
+      margin-left: 0.2rem;
+    }
+    .menu-btn:hover {
+      background: var(--accent);
+      color: #181818;
+    }
     .cta-btn {
       background: linear-gradient(90deg, var(--accent), var(--secondary));
       color: #181818;
@@ -243,9 +277,24 @@
       left: 0;
       font-weight: bold;
     }
-    .price-card .cta-btn {
+    .price-card .cta-btn, .price-card .buy-btn {
       margin-top: 1.2rem;
       width: 100%;
+      font-size: 1.1rem;
+      padding: 0.8rem 0;
+    }
+    .buy-btn {
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      color: #fff;
+      border: none;
+      border-radius: 999px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .buy-btn:hover {
+      background: linear-gradient(90deg, var(--accent), var(--secondary));
+      color: #181818;
     }
     .faq {
       max-width: 800px;
@@ -290,7 +339,11 @@
         <img src="icons/icon128.png" alt="AI Interview Reply logo">
         AI Interview Reply
       </div>
-      <button class="cta-btn" onclick="window.open('#', '_blank')">Add to Chrome</button>
+      <div class="menu">
+        <button class="menu-btn signin" onclick="window.handleSignIn()">Sign In</button>
+        <button class="menu-btn signup" onclick="window.handleSignUp()">Sign Up</button>
+        <button class="cta-btn" onclick="window.open('#', '_blank')">Add to Chrome</button>
+      </div>
     </header>
     <section class="hero">
       <div class="hero-text">
@@ -324,26 +377,8 @@
         <div class="feature-desc">We respect your privacy. No data is sold or shared. See our <a href="privacy-policy.html" target="_blank">Privacy Policy</a>.</div>
       </div>
     </section>
-    <div class="section-title">What Users Say</div>
-    <section class="testimonials">
-      <div class="testimonial">
-        <div class="user"><img src="https://randomuser.me/api/portraits/men/32.jpg"><span class="name">Alex R.</span></div>
-        <div class="stars">★★★★★</div>
-        <div>“AI Interview Reply helped me feel confident and prepared. The suggestions were spot on!”</div>
-      </div>
-      <div class="testimonial">
-        <div class="user"><img src="https://randomuser.me/api/portraits/women/44.jpg"><span class="name">Maria G.</span></div>
-        <div class="stars">★★★★★</div>
-        <div>“I landed my dream job after using the extension for just one week. Highly recommended!”</div>
-      </div>
-      <div class="testimonial">
-        <div class="user"><img src="https://randomuser.me/api/portraits/men/65.jpg"><span class="name">Carlos D.</span></div>
-        <div class="stars">★★★★★</div>
-        <div>“The overlay is so intuitive and the AI tips are a game changer for interviews.”</div>
-      </div>
-    </section>
     <div class="section-title">Pricing</div>
-    <section class="pricing">
+    <section class="pricing" id="pricing-section">
       <div class="price-card">
         <div class="plan">Free Trial</div>
         <div class="price">$0</div>
@@ -352,20 +387,47 @@
           <li>No credit card required</li>
           <li>All features unlocked</li>
         </ul>
-        <button class="cta-btn" onclick="window.open('#', '_blank')">Add to Chrome</button>
+        <button class="cta-btn buy-btn" onclick="window.handleBuySession('free')">Activate Free Trial</button>
       </div>
       <div class="price-card">
-        <div class="plan">Session Packs</div>
-        <div class="price">From $20</div>
+        <div class="plan">60 Minutes</div>
+        <div class="price">$20 CAD</div>
         <ul>
-          <li>60 Minutes – $20 CAD</li>
-          <li>90 Minutes – $27 CAD</li>
-          <li>120 Minutes – $36 CAD</li>
-          <li>150 Minutes – $43 CAD</li>
-          <li>Secure PayPal payments</li>
+          <li>60 minutes of AI coaching</li>
+          <li>Secure PayPal payment</li>
           <li>Session management in the popup</li>
         </ul>
-        <button class="cta-btn" onclick="window.open('#', '_blank')">Add to Chrome</button>
+        <button class="cta-btn buy-btn" onclick="window.handleBuySession('60')">Buy Session</button>
+      </div>
+      <div class="price-card">
+        <div class="plan">90 Minutes</div>
+        <div class="price">$27 CAD</div>
+        <ul>
+          <li>90 minutes of AI coaching</li>
+          <li>Secure PayPal payment</li>
+          <li>Session management in the popup</li>
+        </ul>
+        <button class="cta-btn buy-btn" onclick="window.handleBuySession('90')">Buy Session</button>
+      </div>
+      <div class="price-card">
+        <div class="plan">120 Minutes</div>
+        <div class="price">$36 CAD</div>
+        <ul>
+          <li>120 minutes of AI coaching</li>
+          <li>Secure PayPal payment</li>
+          <li>Session management in the popup</li>
+        </ul>
+        <button class="cta-btn buy-btn" onclick="window.handleBuySession('120')">Buy Session</button>
+      </div>
+      <div class="price-card">
+        <div class="plan">150 Minutes</div>
+        <div class="price">$43 CAD</div>
+        <ul>
+          <li>150 minutes of AI coaching</li>
+          <li>Secure PayPal payment</li>
+          <li>Session management in the popup</li>
+        </ul>
+        <button class="cta-btn buy-btn" onclick="window.handleBuySession('150')">Buy Session</button>
       </div>
     </section>
     <div class="section-title">FAQ</div>
@@ -399,5 +461,36 @@
       &copy; 2024 AI Interview Reply &mdash; <a href="privacy-policy.html" target="_blank">Privacy Policy</a> &mdash; Contact: <a href="mailto:ingadnenrebhi@gmail.com">ingadnenrebhi@gmail.com</a>
     </div>
   </div>
+  <script>
+    // Simulate user authentication state
+    let isSignedIn = false;
+    let userUid = null;
+
+    // Demo sign in/sign up logic
+    window.handleSignIn = function() {
+      // In real app, redirect to sign in page or show modal
+      isSignedIn = true;
+      userUid = 'demo-uid-123';
+      alert('Signed in! (Demo)');
+    };
+    window.handleSignUp = function() {
+      // In real app, redirect to sign up page
+      isSignedIn = false;
+      userUid = null;
+      window.location.href = 'signup.html';
+    };
+    // Buy session logic
+    window.handleBuySession = function(plan) {
+      if (!isSignedIn) {
+        window.location.href = 'signup.html';
+        return;
+      }
+      if (plan === 'free') {
+        window.location.href = `payment.html?uid=${userUid}`;
+      } else if (['60','90','120','150'].includes(plan)) {
+        window.location.href = `payment.html?uid=${userUid}`;
+      }
+    };
+  </script>
 </body>
 </html> 
